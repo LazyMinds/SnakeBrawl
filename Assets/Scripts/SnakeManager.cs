@@ -31,14 +31,19 @@ public class SnakeManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKey ("up"))
-			m_direction = Vector2.up;
-		else if (Input.GetKey("down"))
-			m_direction = -Vector2.up;
-		else if (Input.GetKey ("left"))
-			m_direction = -Vector2.right;
-		else if (Input.GetKey("right"))
-			m_direction = Vector2.right;
+		if (Input.GetKey ("up")) {
+			if (m_direction != -Vector2.up)
+				m_direction = Vector2.up;
+		} else if (Input.GetKey ("down")) {
+			if (m_direction != Vector2.up)
+				m_direction = -Vector2.up;
+		} else if (Input.GetKey ("left")) {
+			if (m_direction != Vector2.right)
+				m_direction = -Vector2.right;
+		} else if (Input.GetKey ("right")) {
+			if (m_direction != -Vector2.right)
+				m_direction = Vector2.right;
+		}
 	}
 
 	void Move() {

@@ -98,7 +98,7 @@ public class SnakeManager : MonoBehaviour {
 		           coll.name.StartsWith ("BorderLeft") || coll.name.StartsWith ("BorderRight")) {
 			Destroy(snake.gameObject);
 			canvas.SetActive(true);
-		} else if (coll.name.StartsWith("SnakeBody")){
+		} else if (coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail")){
 			Destroy(snake.gameObject);
 			canvas.SetActive(true);
 		}

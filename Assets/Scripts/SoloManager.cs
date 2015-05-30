@@ -11,17 +11,12 @@ public class SoloManager : MonoBehaviour {
 	public GameObject borderLeft = null;
 	public GameObject borderRight = null;
 
-	public Sprite snakeTop = null;
-	public Sprite snakeBottom = null;
-	public Sprite snakeLeft = null;
-	public Sprite snakeRight = null;
-
 	private Vector2 m_direction = Vector2.right;
 
 
 	// Use this for initialization
 	void Start () {
-		InvokeRepeating ("Move", 0f, 0.3f);
+		InvokeRepeating ("Move", 0f, 0.15f);
 		InvokeRepeating ("Food", 3f, 3f);
 	}
 	
@@ -49,17 +44,16 @@ public class SoloManager : MonoBehaviour {
 	void Move()
 	{
 		Vector2 dir = m_direction;
-		SpriteRenderer renderer = snake.GetComponent<SpriteRenderer>() as SpriteRenderer;
-		snake.transform.Translate (dir*32);
+		snake.transform.Translate (dir*32, Space.World);
 
 		if (dir == Vector2.up)
-			renderer.sprite = snakeTop;
+			snake.transform.rotation = Quaternion.Euler (new Vector3 (0, 0, 0));
 		else if (dir == -Vector2.up)
-			renderer.sprite = snakeBottom;
+			snake.transform.rotation = Quaternion.Euler (new Vector3 (0, 0, 180));
 		else if (dir == Vector2.right)
-			renderer.sprite = snakeRight;
+			snake.transform.rotation = Quaternion.Euler (new Vector3 (0, 0, 270));
 		else if (dir == -Vector2.right)
-			renderer.sprite = snakeLeft;
+			snake.transform.rotation = Quaternion.Euler (new Vector3 (0, 0, 90));
 	}
 
 	void Food()

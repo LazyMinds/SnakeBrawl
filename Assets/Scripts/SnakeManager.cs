@@ -7,6 +7,7 @@ public class SnakeManager : MonoBehaviour {
 
 	//Prefabs
 	public GameObject snake = null;
+	public GameObject snakeBody = null;
 	public GameObject snakeTail = null;
 	public GameObject food = null;
 	public GameObject canvas = null;
@@ -18,10 +19,12 @@ public class SnakeManager : MonoBehaviour {
 	public Transform borderRight = null;
 
 	List<Transform> snakeTailList = new List<Transform>();
-	private Vector2 m_direction = Vector2.right;
+	private Vector2 m_direction = Vector2.up;
 	private bool foodCollision = false;
+	private GameObject m_tail = null;
 
 	void Start () {
+		m_tail = Instantiate (snakeTail, snake.transform.position + new Vector3 (0, -32, 0), Quaternion.identity) as GameObject;
 		InvokeRepeating ("Move", 0f, 0.15f);
 		Invoke("SpawnFood", 1f);
 	}
@@ -39,6 +42,8 @@ public class SnakeManager : MonoBehaviour {
 	}
 
 	void Move() {
+
+		// Deplacement du snake dans la direction en cour
 		Vector2 v = snake.transform.position;
 		snake.transform.Translate (m_direction*32, Space.World);
 
@@ -52,14 +57,20 @@ public class SnakeManager : MonoBehaviour {
 			snake.transform.rotation = Quaternion.Euler (new Vector3 (0, 0, 90));
 		
 		if (foodCollision) {
-			GameObject tail =(GameObject)Instantiate(snakeTail, v, Quaternion.identity);
-			snakeTailList.Insert(0, tail.transform);
+			GameObject body =(GameObject)Instantiate(snakeBody, v, Quaternion.identity);
+			snakeTailList.Insert(0, body.transform);
 			foodCollision = false;
 		}
-		else if (snakeTailList.Count > 0) {
+		else if (snakeTailList.Count == 0) // si on delete pas une partie du corp on deplace la queue a l'ancienne place de la tete
+		{
+			m_tail.transform.position = v;
+		}
+		else if (snakeTailList.Count > 0) { // on delete une partie du corp, donc on met la queue a la place de la partie delete
+			Vector2 oldPosition = snakeTailList.Last().position;
 			snakeTailList.Last().position = v;
 			snakeTailList.Insert(0, snakeTailList.Last());
 			snakeTailList.RemoveAt(snakeTailList.Count-1);
+			m_tail.transform.position = oldPosition;
 		}
 	}
 
@@ -82,7 +93,7 @@ public class SnakeManager : MonoBehaviour {
 		           coll.name.StartsWith ("BorderLeft") || coll.name.StartsWith ("BorderRight")) {
 			Destroy(snake.gameObject);
 			canvas.SetActive(true);
-		} else if (coll.name.StartsWith("SnakeTail")){
+		} else if (coll.name.StartsWith("SnakeBody")){
 			Destroy(snake.gameObject);
 			canvas.SetActive(true);
 		}

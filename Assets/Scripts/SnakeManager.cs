@@ -28,8 +28,8 @@ public class SnakeManager : MonoBehaviour {
 	enum Direction {GAUCHE, HAUT, BAS, DROITE};
 
 	void Start () {
-		//GameObject tail = Instantiate (snakeTail, snake.transform.position + new Vector3 (0, -32, 0), Quaternion.identity) as GameObject;
-		//snakeTailList.Add (tail.transform);
+		GameObject tail = Instantiate (snakeTail, snake.transform.position + new Vector3 (0, -32, 0), Quaternion.identity) as GameObject;
+		snakeTailList.Add (tail);
 		InvokeRepeating ("Move", 0f, 0.15f);
 		Invoke("SpawnFood", 1f);
 	}

@@ -18,14 +18,17 @@ public class SnakeManager : MonoBehaviour
     public Transform borderBottom = null;
     public Transform borderLeft = null;
     public Transform borderRight = null;
+	public float minSwipeDistance = 10;
 
     private List<GameObject> snakeList = new List<GameObject>();
     private Vector2 direction = Vector2.up;
     private bool foodCollision = false;
     private GameObject bodyObject;
     private GameObject foodObject;
+	
+	private Vector2 mobileInputStartPos;
 
-    enum Direction { LEFT, RIGHT, UP, DOWN };
+    enum Direction { UNDEFINED, LEFT, RIGHT, UP, DOWN };
 
     /// <summary>
     /// Initialization
@@ -43,26 +46,28 @@ public class SnakeManager : MonoBehaviour
     /// </summary>
     void Update()
     {
-        if (Input.GetKey("up"))
-        {
-            if (direction != -Vector2.up)
-                direction = Vector2.up;
-        }
-        else if (Input.GetKey("down"))
-        {
-            if (direction != Vector2.up)
-                direction = -Vector2.up;
-        }
-        else if (Input.GetKey("left"))
-        {
-            if (direction != Vector2.right)
-                direction = -Vector2.right;
-        }
-        else if (Input.GetKey("right"))
-        {
-            if (direction != -Vector2.right)
-                direction = Vector2.right;
-        }
+		Direction inputDir = getInputResult ();
+
+		if (inputDir == Direction.UP)
+		{
+			if (direction != -Vector2.up)
+				direction = Vector2.up;
+		}
+		else if (inputDir == Direction.DOWN)
+		{
+			if (direction != Vector2.up)
+				direction = -Vector2.up;
+		}
+		else if (inputDir == Direction.LEFT)
+		{
+			if (direction != Vector2.right)
+				direction = -Vector2.right;
+		}
+		else if (inputDir == Direction.RIGHT)
+		{
+			if (direction != -Vector2.right)
+				direction = Vector2.right;
+		}
     }
 
     /// <summary>
@@ -266,4 +271,98 @@ public class SnakeManager : MonoBehaviour
             Destroy(snakeList[i].gameObject);
         Destroy(foodObject);
     }
+
+	Direction getInputResult()
+	{
+
+		#if UNITY_ANDROID || UNITY_IPHONE
+
+		if (Input.touchCount > 0) 
+		{
+			
+			Touch touch = Input.touches[0];
+			
+			switch (touch.phase) 
+			{
+				
+			case TouchPhase.Began:
+				mobileInputStartPos = touch.position;
+				return Direction.UNDEFINED;
+				break;
+				
+				
+				
+			case TouchPhase.Ended:
+				Direction directionResultVer = Direction.DOWN;
+				Direction directionResultHor = Direction.LEFT;
+				float swipeDistVertical = (new Vector3(0, touch.position.y, 0) - new Vector3(0, mobileInputStartPos.y, 0)).magnitude;
+				
+				if (swipeDistVertical > minSwipeDistance) 
+				{
+					float swipeValue = Mathf.Sign(touch.position.y - mobileInputStartPos.y);
+					
+					if (swipeValue > 0)
+					{
+						directionResultVer = Direction.UP;
+					}
+					else if (swipeValue < 0)
+					{
+						directionResultVer = Direction.DOWN;
+					}
+					
+				}
+				
+				float swipeDistHorizontal = (new Vector3(touch.position.x,0, 0) - new Vector3(mobileInputStartPos.x, 0, 0)).magnitude;
+				
+				if (swipeDistHorizontal > minSwipeDistance) 
+				{
+					float swipeValue = Mathf.Sign(touch.position.x - mobileInputStartPos.x);
+					
+					if (swipeValue > 0)
+					{
+						directionResultHor = Direction.RIGHT;
+					}
+					else if (swipeValue < 0)
+					{
+						directionResultHor = Direction.LEFT;
+					}
+					
+				}
+
+				if (swipeDistHorizontal > swipeDistVertical)
+				{
+					return directionResultHor;
+				}
+				else
+				{
+					return directionResultVer;
+				}
+
+				break;
+			}
+		}
+		return Direction.UNDEFINED;
+	}
+
+#else
+
+	if (Input.GetKey("up"))
+	{
+		return Direction.UP;
+	}
+	else if (Input.GetKey("down"))
+	{
+		return Direction.DOWN;
+	}
+	else if (Input.GetKey("left"))
+	{
+		return Direction.LEFT;
+	}
+	else if (Input.GetKey("right"))
+	{
+		return Direction.RIGHT;
+	}
+
+
+#endif
 }

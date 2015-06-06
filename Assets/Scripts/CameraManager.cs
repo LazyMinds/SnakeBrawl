@@ -3,14 +3,17 @@ using System.Collections;
 
 public class CameraManager : MonoBehaviour
 {
-    // Use this for initialization
+    /// <summary>
+    /// Camera Initialization with adjusted viewPort
+    /// </summary>
     void Start()
     {
-        Vector3 center = transform.position;
+        float tileSize = 32f;
+        float viewPortWidth = Screen.width - (Screen.width % tileSize);
+        float viewPortHeight = Screen.height - (Screen.height % tileSize);
 
-        center.x = Screen.width / 2 - 16f;
-        center.y = Screen.height / 2 - 16f;
-        center.z = -1f;
-        Camera.main.transform.position = center;
+        Camera.main.transform.position = new Vector3((viewPortWidth - tileSize) / 2, (viewPortHeight - tileSize) / 2, -1f);
+        Camera.main.orthographicSize = viewPortHeight / 2 ;
+        Camera.main.pixelRect = new Rect(0, 0, viewPortWidth, viewPortHeight);    
     }
 }

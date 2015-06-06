@@ -7,27 +7,24 @@ public class SnakeManager : MonoBehaviour
 {
 
     public GameObject snakeHead = null;
-    public GameObject snakeBody = null;
     public GameObject snakeTail = null;
+    public GameObject snakeBody = null;
     public GameObject food = null;
     public GameObject canvas = null;
     public Sprite spriteHorVerDirection = null;
     public Sprite spriteAngleDirection = null;
 
-    public Transform borderTop = null;
-    public Transform borderBottom = null;
-    public Transform borderLeft = null;
-    public Transform borderRight = null;
-	public float minSwipeDistance = 10;
+    public float tileSize = 32f;
+    public float minSwipeDistance = 10;
+    public int mapWidth = 0;
+    public int mapHeight = 0;
 
     private List<GameObject> snakeList = new List<GameObject>();
     private Vector2 direction = Vector2.up;
     private bool foodCollision = false;
-    private GameObject bodyObject;
-    private GameObject foodObject;
-	
-	private Vector2 mobileInputStartPos;
+    private GameObject foodObject = null;
 
+    private Vector2 mobileInputStartPos;
     enum Direction { UNDEFINED, LEFT, RIGHT, UP, DOWN };
 
     /// <summary>
@@ -35,8 +32,23 @@ public class SnakeManager : MonoBehaviour
     /// </summary>
     void Start()
     {
+        mapWidth = (int)(Screen.width / tileSize);
+        mapHeight = (int)(Screen.height / tileSize);
+
+        Vector3 headPositon = transform.position;
+        headPositon.x = (mapWidth / 2) * tileSize;
+        headPositon.y = (mapHeight / 4) * tileSize;
+
+        Vector3 tailPositon = transform.position;
+        tailPositon.x = headPositon.x;
+        tailPositon.y = headPositon.y - tileSize;
+
+        snakeHead.transform.position = headPositon;
+        snakeTail.transform.position = tailPositon;
+
         snakeList.Add(snakeHead);
         snakeList.Add(snakeTail);
+
         InvokeRepeating("Move", 0f, 0.15f);
         Invoke("SpawnFood", 1f);
     }
@@ -46,28 +58,27 @@ public class SnakeManager : MonoBehaviour
     /// </summary>
     void Update()
     {
-		Direction inputDir = getInputResult ();
-
-		if (inputDir == Direction.UP)
-		{
-			if (direction != -Vector2.up)
-				direction = Vector2.up;
-		}
-		else if (inputDir == Direction.DOWN)
-		{
-			if (direction != Vector2.up)
-				direction = -Vector2.up;
-		}
-		else if (inputDir == Direction.LEFT)
-		{
-			if (direction != Vector2.right)
-				direction = -Vector2.right;
-		}
-		else if (inputDir == Direction.RIGHT)
-		{
-			if (direction != -Vector2.right)
-				direction = Vector2.right;
-		}
+        Direction inputDir = getInputResult();
+        if (inputDir == Direction.UP)
+        {
+            if (direction != -Vector2.up)
+                direction = Vector2.up;
+        }
+        else if (inputDir == Direction.DOWN)
+        {
+            if (direction != Vector2.up)
+                direction = -Vector2.up;
+        }
+        else if (inputDir == Direction.LEFT)
+        {
+            if (direction != Vector2.right)
+                direction = -Vector2.right;
+        }
+        else if (inputDir == Direction.RIGHT)
+        {
+            if (direction != -Vector2.right)
+                direction = Vector2.right;
+        }
     }
 
     /// <summary>
@@ -150,13 +161,13 @@ public class SnakeManager : MonoBehaviour
     void Move()
     {
         Vector2 oldHeadPosition = snakeHead.transform.position;
-        snakeHead.transform.Translate(direction * 32, Space.World);
+        snakeHead.transform.Translate(direction * tileSize, Space.World);
         Rotate(snakeHead);
 
         if (foodCollision)
         {
-            bodyObject = Instantiate(snakeBody, oldHeadPosition, Quaternion.identity) as GameObject;
-            snakeList.Insert(1, bodyObject);
+            snakeBody = Instantiate(snakeBody, oldHeadPosition, Quaternion.identity) as GameObject;
+            snakeList.Insert(1, snakeBody);
             Rotate(snakeList.ElementAt(1));
             foodCollision = false;
         }
@@ -227,12 +238,11 @@ public class SnakeManager : MonoBehaviour
 
         do
         {
-            x = (int)Random.Range(borderLeft.position.x + 32, borderRight.position.x - 32);
-            y = (int)Random.Range(borderBottom.position.y + 32, borderTop.position.y - 32);
-
-            x -= x % 32;
-            y -= y % 32;
+            x = (int)(Random.Range(1, mapWidth - 1) * tileSize);
+            y = (int)(Random.Range(1, mapHeight - 1) * tileSize);
         } while (checkCollisionWithBody(x, y));
+
+        Debug.Log("Food x:" + x + "Food y:" + y);
 
         foodObject = Instantiate(food, new Vector2(x, y), Quaternion.identity) as GameObject;
     }
@@ -249,8 +259,7 @@ public class SnakeManager : MonoBehaviour
             Destroy(coll.gameObject);
             Invoke("SpawnFood", 0.5f);
         }
-        else if (coll.name.StartsWith("BorderTop") || coll.name.StartsWith("BorderBottom") ||
-                 coll.name.StartsWith("BorderLeft") || coll.name.StartsWith("BorderRight"))
+        else if (coll.name.StartsWith("TileBorder"))
         {
             DestroyGameObject();
             canvas.SetActive(true);
@@ -272,10 +281,10 @@ public class SnakeManager : MonoBehaviour
         Destroy(foodObject);
     }
 
-	Direction getInputResult()
-	{
+    Direction getInputResult()
+    {
 
-		#if UNITY_ANDROID || UNITY_IPHONE
+#if UNITY_ANDROID || UNITY_IPHONE
 
 		if (Input.touchCount > 0) 
 		{
@@ -346,23 +355,24 @@ public class SnakeManager : MonoBehaviour
 
 #else
 
-	if (Input.GetKey("up"))
-	{
-		return Direction.UP;
-	}
-	else if (Input.GetKey("down"))
-	{
-		return Direction.DOWN;
-	}
-	else if (Input.GetKey("left"))
-	{
-		return Direction.LEFT;
-	}
-	else if (Input.GetKey("right"))
-	{
-		return Direction.RIGHT;
-	}
+        if (Input.GetKey("up"))
+        {
+            return Direction.UP;
+        }
+        else if (Input.GetKey("down"))
+        {
+            return Direction.DOWN;
+        }
+        else if (Input.GetKey("left"))
+        {
+            return Direction.LEFT;
+        }
+        else if (Input.GetKey("right"))
+        {
+            return Direction.RIGHT;
+        }
 
-
+        return Direction.UNDEFINED;
 #endif
+    }
 }

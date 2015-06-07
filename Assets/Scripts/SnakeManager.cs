@@ -32,8 +32,8 @@ public class SnakeManager : MonoBehaviour
     /// </summary>
     void Start()
     {
-        mapWidth = (int)(Screen.width / tileSize);
-        mapHeight = (int)(Screen.height / tileSize);
+        mapWidth = CameraManager.mapWidth;
+        mapHeight = CameraManager.mapHeight;
 
         Vector3 headPositon = transform.position;
         headPositon.x = (mapWidth / 2) * tileSize;
@@ -242,8 +242,6 @@ public class SnakeManager : MonoBehaviour
             y = (int)(Random.Range(1, mapHeight - 1) * tileSize);
         } while (checkCollisionWithBody(x, y));
 
-        Debug.Log("Food x:" + x + "Food y:" + y);
-
         foodObject = Instantiate(food, new Vector2(x, y), Quaternion.identity) as GameObject;
     }
 
@@ -259,7 +257,7 @@ public class SnakeManager : MonoBehaviour
             Destroy(coll.gameObject);
             Invoke("SpawnFood", 0.5f);
         }
-        else if (coll.name.StartsWith("TileBorder"))
+        else if (coll.name.StartsWith("TileRedBlock"))
         {
             DestroyGameObject();
             canvas.SetActive(true);
@@ -288,18 +286,13 @@ public class SnakeManager : MonoBehaviour
 
 		if (Input.touchCount > 0) 
 		{
-			
 			Touch touch = Input.touches[0];
 			
 			switch (touch.phase) 
 			{
-				
 			case TouchPhase.Began:
 				mobileInputStartPos = touch.position;
 				return Direction.UNDEFINED;
-				break;
-				
-				
 				
 			case TouchPhase.Ended:
 				Direction directionResultVer = Direction.DOWN;
@@ -311,14 +304,9 @@ public class SnakeManager : MonoBehaviour
 					float swipeValue = Mathf.Sign(touch.position.y - mobileInputStartPos.y);
 					
 					if (swipeValue > 0)
-					{
 						directionResultVer = Direction.UP;
-					}
 					else if (swipeValue < 0)
-					{
 						directionResultVer = Direction.DOWN;
-					}
-					
 				}
 				
 				float swipeDistHorizontal = (new Vector3(touch.position.x,0, 0) - new Vector3(mobileInputStartPos.x, 0, 0)).magnitude;
@@ -328,50 +316,26 @@ public class SnakeManager : MonoBehaviour
 					float swipeValue = Mathf.Sign(touch.position.x - mobileInputStartPos.x);
 					
 					if (swipeValue > 0)
-					{
 						directionResultHor = Direction.RIGHT;
-					}
 					else if (swipeValue < 0)
-					{
 						directionResultHor = Direction.LEFT;
-					}
-					
 				}
-
 				if (swipeDistHorizontal > swipeDistVertical)
-				{
 					return directionResultHor;
-				}
 				else
-				{
 					return directionResultVer;
-				}
-
-				break;
 			}
 		}
 		return Direction.UNDEFINED;
-	}
-
 #else
-
         if (Input.GetKey("up"))
-        {
             return Direction.UP;
-        }
         else if (Input.GetKey("down"))
-        {
             return Direction.DOWN;
-        }
         else if (Input.GetKey("left"))
-        {
             return Direction.LEFT;
-        }
         else if (Input.GetKey("right"))
-        {
             return Direction.RIGHT;
-        }
-
         return Direction.UNDEFINED;
 #endif
     }

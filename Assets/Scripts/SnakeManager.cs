@@ -5,7 +5,7 @@ using System.Linq;
 
 public class SnakeManager : MonoBehaviour
 {
-
+    public SceneManager sceneManager = null;
     public GameObject snakeHead = null;
     public GameObject snakeTail = null;
     public GameObject snakeBody = null;
@@ -257,15 +257,10 @@ public class SnakeManager : MonoBehaviour
             Destroy(coll.gameObject);
             Invoke("SpawnFood", 0.5f);
         }
-        else if (coll.name.StartsWith("TileRedBlock"))
+        else if (coll.name.StartsWith("TileRedBlock") || coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))
         {
             DestroyGameObject();
-            canvas.SetActive(true);
-        }
-        else if (coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))
-        {
-            DestroyGameObject();
-            canvas.SetActive(true);
+            sceneManager.LoadScene("GameOverScene");
         }
     }
 

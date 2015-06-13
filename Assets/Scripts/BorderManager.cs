@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TileBackground : MonoBehaviour
+public class BorderManager : MonoBehaviour
 {
     public float tileSize = CameraManager.tileSize;
     public int mapWidth = 0;

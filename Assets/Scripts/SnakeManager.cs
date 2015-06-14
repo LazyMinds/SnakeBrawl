@@ -5,14 +5,13 @@ using System.Linq;
 
 public class SnakeManager : MonoBehaviour
 {
-    public SceneManager sceneManager = null;
-    public GameObject snakeHead = null;
-    public GameObject snakeTail = null;
-    public GameObject snakeBody = null;
-    public GameObject food = null;
-    public GameObject canvas = null;
-    public Sprite spriteHorVerDirection = null;
-    public Sprite spriteAngleDirection = null;
+    public SceneManager sceneManager;
+    public GameObject snakeHead;
+    public GameObject snakeTail;
+    public GameObject snakeBody;
+    public GameObject food;
+    public Sprite spriteHorVerDirection;
+    public Sprite spriteAngleDirection;
 
     public float tileSize = 32f;
     public float minSwipeDistance = 10;
@@ -26,6 +25,9 @@ public class SnakeManager : MonoBehaviour
 
     private Vector2 mobileInputStartPos;
     enum Direction { UNDEFINED, LEFT, RIGHT, UP, DOWN };
+
+    public GUIText scoreText;
+    public int score;
 
     /// <summary>
     /// Initialization
@@ -48,6 +50,8 @@ public class SnakeManager : MonoBehaviour
 
         snakeList.Add(snakeHead);
         snakeList.Add(snakeTail);
+
+        UpdateScore(0);
 
         InvokeRepeating("Move", 0f, 0.15f);
         Invoke("SpawnFood", 1f);
@@ -246,6 +250,15 @@ public class SnakeManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Update Score Label on GUI
+    /// </summary>
+    void UpdateScore(int newScore)
+    {
+        score = newScore;
+        scoreText.text = "Score: " + score;
+    }
+
+    /// <summary>
     /// Collision detection
     /// </summary>
     /// <param name="coll"></param>
@@ -255,6 +268,7 @@ public class SnakeManager : MonoBehaviour
         {
             foodCollision = true;
             Destroy(coll.gameObject);
+            UpdateScore(score + 1);
             Invoke("SpawnFood", 0.5f);
         }
         else if (coll.name.StartsWith("TileRedBlock") || coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))

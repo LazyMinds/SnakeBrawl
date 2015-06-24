@@ -27,7 +27,7 @@ public class SnakeManager : MonoBehaviour
     enum Direction { UNDEFINED, LEFT, RIGHT, UP, DOWN };
 
     public GUIText scoreText;
-    public int score;
+    static public int score;
 
     /// <summary>
     /// Initialization
@@ -258,6 +258,20 @@ public class SnakeManager : MonoBehaviour
         scoreText.text = "Score: " + score;
     }
 
+    void SetHighScore(int newScore)
+    {
+        string key = "highscore";
+
+        if (PlayerPrefs.HasKey(key))
+        {
+            if (PlayerPrefs.GetInt(key) <= newScore)
+                PlayerPrefs.SetInt(key, newScore);
+        }
+        else
+            PlayerPrefs.SetInt(key, newScore);
+        PlayerPrefs.Save();
+    }
+
     /// <summary>
     /// Collision detection
     /// </summary>
@@ -273,6 +287,7 @@ public class SnakeManager : MonoBehaviour
         }
         else if (coll.name.StartsWith("TileRedBlock") || coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))
         {
+            SetHighScore(score);
             DestroyGameObject();
             sceneManager.LoadScene("GameOverScene");
         }

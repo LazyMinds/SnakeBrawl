@@ -8,7 +8,9 @@ public class GameOverManager : MonoBehaviour
     public GameObject highScore;
     public GameObject currentScore;
 
-    // Use this for initialization
+    /// <summary>
+    /// Initialize HighScore / CurrentScore
+    /// </summary>
     void Start()
     {
         Text highScoreValue = highScore.GetComponent<Text>();

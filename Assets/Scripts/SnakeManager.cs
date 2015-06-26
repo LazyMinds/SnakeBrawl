@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +28,11 @@ public class SnakeManager : MonoBehaviour
     private Vector2 mobileInputStartPos;
     enum Direction { UNDEFINED, LEFT, RIGHT, UP, DOWN };
 
-    public GUIText scoreText;
+    public GameObject scoreObject;
+    public GameObject speedObject;
+
     static public int score;
+    static public float speed;
 
     /// <summary>
     /// Initialization
@@ -52,8 +57,7 @@ public class SnakeManager : MonoBehaviour
         snakeList.Add(snakeTail);
 
         UpdateScore(0);
-
-        InvokeRepeating("Move", 0f, 0.15f);
+        UpdateSpeed(0.20f);
         Invoke("SpawnFood", 1f);
     }
 
@@ -170,8 +174,8 @@ public class SnakeManager : MonoBehaviour
 
         if (foodCollision)
         {
-            snakeBody = Instantiate(snakeBody, oldHeadPosition, Quaternion.identity) as GameObject;
-            snakeList.Insert(1, snakeBody);
+            GameObject snakeBodyPart = Instantiate(snakeBody, oldHeadPosition, Quaternion.identity) as GameObject;
+            snakeList.Insert(1, snakeBodyPart);
             Rotate(snakeList.ElementAt(1));
             foodCollision = false;
         }
@@ -242,11 +246,25 @@ public class SnakeManager : MonoBehaviour
 
         do
         {
-            x = (int)(Random.Range(1, mapWidth - 1) * tileSize);
-            y = (int)(Random.Range(1, mapHeight - 1) * tileSize);
+            x = (int)(UnityEngine.Random.Range(1, mapWidth - 1) * tileSize);
+            y = (int)(UnityEngine.Random.Range(1, mapHeight - 1) * tileSize);
         } while (checkCollisionWithBody(x, y));
 
         foodObject = Instantiate(food, new Vector2(x, y), Quaternion.identity) as GameObject;
+    }
+
+    /// <summary>
+    /// Update Speed Difficulty
+    /// </summary>
+    /// <param name="newSpeed"></param>
+    void UpdateSpeed(float newSpeed)
+    {
+        Text speedValue = speedObject.GetComponent<Text>();
+
+        speed = newSpeed;
+        speedValue.text = Math.Round(speed, 2).ToString();
+        CancelInvoke("Move");
+        InvokeRepeating("Move", 0f, speed);
     }
 
     /// <summary>
@@ -254,21 +272,19 @@ public class SnakeManager : MonoBehaviour
     /// </summary>
     void UpdateScore(int newScore)
     {
-        score = newScore;
-        scoreText.text = "Score: " + score;
-    }
+        Text scoreValue = scoreObject.GetComponent<Text>();
 
-    void SetHighScore(int newScore)
-    {
+        score = newScore;
+        scoreValue.text = score.ToString();
         string key = "highscore";
 
         if (PlayerPrefs.HasKey(key))
         {
-            if (PlayerPrefs.GetInt(key) <= newScore)
-                PlayerPrefs.SetInt(key, newScore);
+            if (PlayerPrefs.GetInt(key) <= score)
+                PlayerPrefs.SetInt(key, score);
         }
         else
-            PlayerPrefs.SetInt(key, newScore);
+            PlayerPrefs.SetInt(key, score);
         PlayerPrefs.Save();
     }
 
@@ -283,11 +299,12 @@ public class SnakeManager : MonoBehaviour
             foodCollision = true;
             Destroy(coll.gameObject);
             UpdateScore(score + 1);
+            if (speed > 0.05f)
+                UpdateSpeed(speed - 0.01f);
             Invoke("SpawnFood", 0.5f);
         }
         else if (coll.name.StartsWith("TileRedBlock") || coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))
         {
-            SetHighScore(score);
             DestroyGameObject();
             sceneManager.LoadScene("GameOverScene");
         }

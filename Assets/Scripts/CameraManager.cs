@@ -17,8 +17,8 @@ public class CameraManager : MonoBehaviour
     void Start()
     {
         Screen.SetResolution(fixedWidth, fixedHeight, true);
-        //Camera.main.transform.position = new Vector3((fixedWidth - tileSize) / 2, (fixedHeight - tileSize) / 2, -1f);
-        Camera.main.transform.position = new Vector3(fixedWidth / 2, fixedHeight / 2, -1f);
+        Camera.main.transform.position = new Vector3((fixedWidth - tileSize) / 2, (fixedHeight - tileSize) / 2, -1f);
+        //Camera.main.transform.position = new Vector3(fixedWidth / 2, fixedHeight / 2, -1f);
         Camera.main.orthographicSize = fixedHeight / 2;
         Camera.main.rect = new Rect(0, 0, fixedWidth, fixedHeight);
     }

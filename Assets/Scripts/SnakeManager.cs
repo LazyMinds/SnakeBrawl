@@ -303,7 +303,7 @@ public class SnakeManager : MonoBehaviour
                 UpdateSpeed(speed - 0.01f);
             Invoke("SpawnFood", 0.5f);
         }
-        else if (coll.name.StartsWith("TileRedBlock") || coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))
+        else if (coll.name.StartsWith("TileBorderBlock") || coll.name.StartsWith("SnakeBody") || coll.name.StartsWith("SnakeTail"))
         {
             DestroyGameObject();
             sceneManager.LoadScene("GameOverScene");
